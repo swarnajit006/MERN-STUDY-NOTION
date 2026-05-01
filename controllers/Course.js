@@ -1,6 +1,6 @@
 const Course = require("../models/Course");
 
-const Tag = require("../models/tags");
+const Category = require("../models/Category");
 const User = require("../models/User");
 const {uploadImageToCloudinary} = require("../utils/imageUploader");
 
@@ -36,12 +36,12 @@ exports.createCourse = async (req, res) => {
                 message: "Instructor not found"
             });
         }
-        //check given tags are valid or not
-        const tagDetails = await Tag.findById(tag);
-        if (!tagDetails) {
+        //check given categories are valid or not
+        const categoryDetails = await Category.findById(tags);
+        if (!categoryDetails) {
             return res.status(404).json({
                 success: false,
-                message: "Tag not found"
+                message: "Category not found"
             });
         }
         //upload thumbnail to cloudinary
@@ -54,7 +54,7 @@ exports.createCourse = async (req, res) => {
             whatYouWillLearn: whatYouWillLearn,
             price: price,
             thumbnail: thumbnailImage.secure_url,
-            tag: tagDetails._id,
+            category: categoryDetails._id,
         });
         console.log("Course created successfully:", newCourse);
         //add the new course to instructor's user schema
@@ -63,8 +63,8 @@ exports.createCourse = async (req, res) => {
                 courses: newCourse._id
             }
         }, { new: true });
-        //update the tag's schema with the new course
-        await Tag.findByIdAndUpdate(tagDetails._id, {
+        //update the category's schema with the new course
+        await Category.findByIdAndUpdate(categoryDetails._id, {
             $push: {
                 courses: newCourse._id
             }
@@ -100,7 +100,7 @@ exports.showAllCourses = async (req, res) => {
                                                     courseDescription: true,
                                                         price: true,
                                                      thumbnail: true,instructor:true,
-                                                     tag:true,
+                                                     category:true,
                                                      studentsEnrolled:true,ratingAndReviews:true,
                                                      whatYouWillLearn:true,
                                                      }).populate("instructor").exec();
